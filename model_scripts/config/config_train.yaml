@@ -1,0 +1,110 @@
+data:
+  file_path:
+    train: /home/dghilardi/mention_clustering/mention-clustering/zeshel_processed/train.json
+    val: /home/dghilardi/mention_clustering/mention-clustering/zeshel_processed/val.json
+    test: /home/dghilardi/mention_clustering/mention-clustering/zeshel_processed/test.json
+  output_path: /home/dghilardi/mention_clustering/mention-clustering/zeshel_prepared/nndescent_mentionpluscontext/
+  split_corpus: True
+  mode: Load #Create, Load
+  batch:
+    train: 4 # 4*number of element in each n-pair
+    test: 16
+  dataset_name: BiEncoderDataset
+
+tokenizer:
+  name: MentionPlusContext
+  model_ckpt: bert-base-uncased
+  params:
+    max_length: 128
+    padding: max_length
+    truncation: True
+
+mention_encoder:
+  name: BERTTfIdf
+  model_ckpt: bert-base-uncased
+  params:
+    binary: True
+    norm: l2 
+    lowercase: False
+
+# knn_search:
+#   name: KDTreeSearch
+#   params:
+#     leaf_size: 50
+#     metric: l2
+#   query_params:
+#     k: 5
+#     n_neg: 2
+#     n_pos: 1
+
+knn_search:
+  name: NNDescentSearch
+  hard_pairs:
+    fit_params:
+      n_neighbors: 50
+      metric: jaccard
+    query_params:
+      k: 5
+      n_neg: 2
+      n_pos: 1
+  biencoder_evaluation:
+    fit_params:
+      n_neighbors: 50
+      metric: cosine      
+  
+context_encoder:
+  name: CLSPooling
+  model_ckpt: bert-base-uncased
+  params:
+    output_hidden_states: True 
+
+miner:
+  name: MSMiner
+  params:
+    epsilon: 0.1
+
+loss:
+  name: MSLoss
+  params:
+    alpha: 2
+    beta: 5
+    base: 1
+
+optimizer:
+  learning_rate: 1e-5
+
+trainer:
+  accelerator: gpu
+  # enable_checkpointing: False
+  deterministic: True
+  precision: 16-mixed
+  log_every_n_steps: 0.1
+  val_check_interval: 0.1
+  max_epochs: 2
+  # strategy: ddp_find_unused_parameters_true
+  inference_mode: False
+  devices: [0]
+
+seed: 11
+
+wandb:
+  enable: True
+  params:
+    name: OnlyMention
+    project: Bi-Encoder Zeshel Definitivo
+    log_model: False
+
+early_stopping:
+  enable: False
+  params:
+    monitor: val_recall10
+    patience: 3
+    mode: max
+
+model_checkpoint:
+  enable: True
+  params:
+    dirpath: /home/dghilardi/mention_clustering/mention-clustering/biencoder/zeshel/MentionPlusContext(CLSPooling)/
+    monitor: val_recall10
+    mode: max
+
