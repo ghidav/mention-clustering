@@ -64,9 +64,9 @@ class BiEncoder(L.LightningModule):
     
     def validation_step(self, batch, batch_idx):
         embeddings = self(batch)
-        lables = batch['label'].to(torch.int32)
-        corpus = batch['corpus']
-        ex_ids = batch['ex_id']
+        lables = batch['label'].to(torch.int32).cpu()
+        corpus = batch['corpus'].cpu()
+        ex_ids = batch['ex_id'].cpu()
         self.val_output['embeddings'].append(embeddings)
         self.val_output['lables'].append(lables)
         self.val_output['corpus'].append(corpus)
@@ -88,9 +88,9 @@ class BiEncoder(L.LightningModule):
     
     def test_step(self, batch, batch_idx):
         embeddings = self(batch)
-        lables = batch['label'].to(torch.int32)
-        corpus = batch['corpus']
-        ex_ids = batch['ex_id']
+        lables = batch['label'].to(torch.int32).cpu()
+        corpus = batch['corpus'].cpu()
+        ex_ids = batch['ex_id'].cpu()
         self.test_output['embeddings'].append(embeddings)
         self.test_output['lables'].append(lables)
         self.test_output['corpus'].append(corpus)
@@ -109,15 +109,15 @@ class BiEncoder(L.LightningModule):
 
     def predict_step(self, batch, batch_idx):
         embeddings = self(batch)
-        sparse_mention_embedding = batch['sparse_mention_embedding']
-        lables = batch['label'].to(torch.int32)
-        corpus = batch['corpus']
-        ex_ids = batch['ex_id']
-        self.pred_output['embeddings'].append(embeddings)
-        self.pred_output['sparse_mention_embedding'].append(sparse_mention_embedding)
-        self.pred_output['lables'].append(lables)
-        self.pred_output['corpus'].append(corpus)
-        self.pred_output['ex_id'].append(ex_ids)
+        sparse_mention_embedding = batch['sparse_mention_embedding'].cpu()
+        lables = batch['label'].to(torch.int32).cpu()
+        corpus = batch['corpus'].cpu()
+        ex_ids = batch['ex_id'].cpu()
+        self.pred_output['embeddings'].append(embeddings.cpu())
+        self.pred_output['sparse_mention_embedding'].append(sparse_mention_embedding.cpu())
+        self.pred_output['lables'].append(lables.cpu())
+        self.pred_output['corpus'].append(corpus.cpu())
+        self.pred_output['ex_id'].append(ex_ids.cpu())
     
     def on_predict_epoch_end(self):
         embeddings = torch.cat(self.pred_output['embeddings'], dim=0)
@@ -135,7 +135,7 @@ class BiEncoder(L.LightningModule):
         self.pred_pairs = {'pairs':ordered_pairs, 'link':orderd_link_labels}
         self.pred_dict_output = {'biencoder_embedding':embeddings,
                                  'mention_embedding':sparse_mention_embedding,
-                                 'labels':labels,
+                                 'labels':labels, #entity ids
                                  'corpus':corpus,
                                  'ex_id':ex_id}
  

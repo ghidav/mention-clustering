@@ -104,7 +104,7 @@ early_stopping:
 model_checkpoint:
   enable: True
   params:
-    dirpath: /home/dghilardi/mention_clustering/mention-clustering/biencoder/zeshel/MentionPlusContext(CLSPooling)/
+    dirpath: /home/dghilardi/mention_clustering/mention-clustering/biencoder/zeshel/MentionPlusContext-CLSPooling/
     monitor: val_recall10
     mode: max
 

@@ -1,10 +1,10 @@
 from module.mention_encoder import BERTTfIdf
-from module.tokenizer import BERTLikeTokenizer, MaskTokenizer, MentionPlusContext, PadMention
+from module.tokenizer import BERTLikeTokenizer, MaskTokenizer, MentionPlusContext, PadMention, CrossEncoderTokenizer
 from module.PLM_encoder import CLSPooling, BERTLikeEncoder, MeanPooling, CLSMeanPooling, MentionPooling
 from module.knn_search import KDTreeSearch, NNDescentSearch
-from module.losses import MSLoss
+from module.losses import MSLoss, BinaryCrossEntropyLoss
 from module.miners import MSMiner
-from module.dataset import BiEncoderDataset
+from module.dataset import BiEncoderDataset, CrossEncoderDataset
 
 
 class_dict = {
@@ -22,5 +22,8 @@ class_dict = {
     'CLSMeanPooling': CLSMeanPooling,
     'PadMention': PadMention,
     'MentionPooling': MentionPooling,
-    'BiEncoderDataset': BiEncoderDataset
+    'BiEncoderDataset': BiEncoderDataset,
+    'CrossEncoderTokenizer':CrossEncoderTokenizer,
+    'CrossEncoderDataset': CrossEncoderDataset,
+    'BinaryCrossEntropyLoss':BinaryCrossEntropyLoss
 }

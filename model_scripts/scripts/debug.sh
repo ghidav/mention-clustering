@@ -1,1 +1,1 @@
-debugpy-run -p 5670 biencoder_predict.py
+debugpy-run -p 5672 cross_encoder.py

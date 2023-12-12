@@ -113,3 +113,14 @@ class BiEncoderDatasetWithMentionMask(Dataset):
                 'label': self.label[index],
                 'corpus':self.corpus[index],
                 'ex_id': self.ex_ids[index]}
+
+class CrossEncoderDataset(Dataset):
+
+    def __init__(self, examples) -> None:
+        self.examples = examples
+    
+    def __len__(self):
+        return len(self.examples)
+    
+    def __getitem__(self, index):
+        return self.examples[index]
