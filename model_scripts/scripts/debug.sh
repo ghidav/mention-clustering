@@ -1,1 +1,1 @@
-debugpy-run -p 5672 cross_encoder.py
+debugpy-run -p 5678 cross_encoder_predict.py

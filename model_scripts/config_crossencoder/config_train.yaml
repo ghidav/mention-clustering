@@ -1,17 +1,17 @@
 data:
   file_path:
     train:
-      raw: /home/dghilardi/mention_clustering/mention-clustering/zeshel_processed/train.json
-      biencoder: /home/dghilardi/mention_clustering/mention-clustering/zeshel_prepared/biencoder/train.pkl
+      raw: /home/dghilardi/kgqa/mention-clustering/zeshel_processed/train.json
+      biencoder: /home/dghilardi/kgqa/mention-clustering/zeshel_prepared/biencoder/train.pkl
     val:
-      raw: /home/dghilardi/mention_clustering/mention-clustering/zeshel_processed/val.json
-      biencoder: /home/dghilardi/mention_clustering/mention-clustering/zeshel_prepared/biencoder/val.pkl
+      raw: /home/dghilardi/kgqa/mention-clustering/zeshel_processed/val.json
+      biencoder: /home/dghilardi/kgqa/mention-clustering/zeshel_prepared/biencoder/val.pkl
     test:
-      raw: /home/dghilardi/mention_clustering/mention-clustering/zeshel_processed/test.json
-      biencoder: /home/dghilardi/mention_clustering/mention-clustering/zeshel_prepared/biencoder/test.pkl
-  output_path: /home/dghilardi/mention_clustering/mention-clustering/zeshel_prepared/crosse_encoder/
-  mode: Create #Create, Load
-  batch: 16
+      raw: /home/dghilardi/kgqa/mention-clustering/zeshel_processed/test.json
+      biencoder: /home/dghilardi/kgqa/mention-clustering/zeshel_prepared/biencoder/test.pkl
+  output_path: /home/dghilardi/kgqa/mention-clustering/zeshel_prepared/crossencoder/
+  mode: Load #Create, Load
+  batch: 64
   dataset_name: CrossEncoderDataset
 
 tokenizer:
@@ -38,7 +38,7 @@ optimizer:
   learning_rate: 1e-5
 
 trainer:
-  accelerator: cpu
+  accelerator: cuda
   # enable_checkpointing: False
   deterministic: True
   precision: 16-mixed
@@ -47,8 +47,8 @@ trainer:
   max_epochs: 2
   # strategy: ddp_find_unused_parameters_true
   inference_mode: False
-  # devices: [0]
-  fast_dev_run: True
+  devices: [3]
+  fast_dev_run: False
 
 seed: 11
 
@@ -69,6 +69,6 @@ early_stopping:
 model_checkpoint:
   enable: True
   params:
-    dirpath: /home/dghilardi/mention_clustering/mention-clustering/biencoder/zeshel/CrossEncoder/
+    dirpath: /home/dghilardi/kgqa/mention-clustering/biencoder/zeshel/CrossEncoder/
     monitor: val_loss
     mode: min

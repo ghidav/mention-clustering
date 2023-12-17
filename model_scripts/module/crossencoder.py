@@ -18,7 +18,7 @@ class CrossEncoder(L.LightningModule):
         self.loss = class_dict[loss_config['name']](loss_config['params'])
         # self.loss.loss = self.loss.loss.to(self.device)
 
-        self.projector = torch.nn.Linear(768, 1, bias=True)
+        self.projector = torch.nn.Linear(769, 1, bias=True)
         self.similarity_logistic = torch.nn.Linear(2, 1, bias=True)
 
         metrics = MetricCollection([
@@ -43,13 +43,14 @@ class CrossEncoder(L.LightningModule):
         input_ids = batch['input_ids'].to(torch.int32)
         attention_mask = batch['attention_mask'].to(torch.int32)
         token_type_ids = batch['token_type_ids'].to(torch.int32)
+        
         crossencoder_embedding = self.encoder(input_ids, attention_mask, token_type_ids)
-        crossencoder_logits = self.projector(crossencoder_embedding)
-        crossencoder_similarity = torch.sigmoid(crossencoder_logits).squeeze()
-        similarity_tensor = torch.stack((batch['mention_sim'], crossencoder_similarity))
-        similarity_logits = self.similarity_logistic(torch.t(similarity_tensor)).squeeze()
+        crossencoder_logits = self.projector(torch.cat([crossencoder_embedding, batch['mention_sim'].unsqueeze(-1)], dim=-1))
+        #crossencoder_similarity = torch.sigmoid(crossencoder_logits).squeeze()
+        #similarity_tensor = torch.stack((batch['mention_sim'], crossencoder_similarity))
+        #similarity_logits = self.similarity_logistic(torch.t(similarity_tensor)).squeeze()
 
-        return similarity_logits
+        return crossencoder_logits.squeeze() #similarity_logits
     
     def training_step(self, batch, batch_idx):
         similarity_logits = self(batch)
@@ -77,3 +78,10 @@ class CrossEncoder(L.LightningModule):
         self.log('test_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
         self.log_dict(self.test_metrics, on_epoch=True, on_step=False)
         return loss
+
+    def predict_step(self, batch, batch_idx):
+        similarity_logits = self(batch).sigmoid() # [bs 1]
+        label_link = batch['link'] # [bs 1]
+        indexes = batch['ex_id'] # [bs 2]
+
+        return similarity_logits, label_link, indexes

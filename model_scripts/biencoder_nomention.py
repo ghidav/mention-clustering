@@ -5,7 +5,7 @@ from lightning import Trainer, seed_everything
 from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 
-with open('/home/dghilardi/mention_clustering/mention-clustering/pytorch_model/config/config_train.yaml', 'r') as f:
+with open('/home/dghilardi/kgqa/mention-clustering/model_scripts/config/config_train.yaml', 'r') as f:
     config = yaml.safe_load(f)
 
 seed_everything(config['seed'])

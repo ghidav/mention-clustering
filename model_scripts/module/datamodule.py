@@ -10,7 +10,6 @@ from pathlib import Path
 import torch
 from tqdm import tqdm
 import gzip
-import blosc
 
 class BiEncoderDataModule(L.LightningDataModule):
 
@@ -161,6 +160,10 @@ class BiEncoderDataModule(L.LightningDataModule):
         elif stage=='predict':
             self.predict_dataset = dataset['pred']
 
+        elif stage=='custom_predict':
+            self.val_dataset = dataset['val']
+            self.test_dataset = dataset['test']
+
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_train, shuffle=True)
     
@@ -218,15 +221,21 @@ class CrossEncoderDataModule(L.LightningDataModule):
             dataset_dict = {}
             cosine = torch.nn.CosineSimilarity(dim=0)
             for data_partition, file_path in self.file_path.items():
+                # Load raw examples
                 example_prepared = []
                 raw_examples = self.import_json(file_path['raw'])
+
+                # Load biencoder output
                 biencoder_output, pairs = self.import_pickle(file_path['biencoder'])
                 ex_id = biencoder_output['ex_id']
                 sorted_id = torch.argsort(ex_id)
                 biencoder_embedding = biencoder_output['biencoder_embedding'][sorted_id]
+                
+                # Load mention embeddings
                 mention_embedding = biencoder_output['mention_embedding'].to_dense()[sorted_id]
                 labels = biencoder_output['labels'][sorted_id]
                 corpus = biencoder_output['corpus'][sorted_id]
+
                 for (idx_a, idx_b), link in tqdm(zip(pairs['pairs'], pairs['link']), desc='Pairs processed', total=len(pairs['link'])):
                     biencoder_embedding_pair = biencoder_embedding[(idx_a, idx_b), :]
                     mention_embedding_pair = mention_embedding[(idx_a, idx_b), :]
@@ -277,6 +286,10 @@ class CrossEncoderDataModule(L.LightningDataModule):
         
         elif stage=='predict':
             self.predict_dataset = dataset['pred']
+
+        elif stage=='custom_predict':
+            self.val_dataset = dataset['val']
+            self.test_dataset = dataset['test']
 
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch, shuffle=True)
